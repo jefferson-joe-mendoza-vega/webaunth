@@ -2,73 +2,41 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>WebAuthn Demo</title>
+  <title>WebAuthn Demo Optimizada</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      max-width: 600px;
-      margin: 0 auto;
+      max-width: 600px; margin: 0 auto;
       padding: 20px;
     }
     button {
-      padding: 10px 15px;
-      background-color: #4285f4;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      margin: 10px 0;
+      padding: 10px 15px; background-color: #4285f4; color: white;
+      border: none; border-radius: 4px; cursor: pointer; margin: 10px 0;
     }
-    button:hover {
-      background-color: #3367d6;
-    }
+    button:hover { background-color: #3367d6; }
     .card {
-      border: 1px solid #ddd;
-      padding: 20px;
-      border-radius: 8px;
-      margin-bottom: 20px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      border: 1px solid #ddd; padding: 20px; border-radius: 8px;
+      margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
     input {
-      width: 100%;
-      padding: 8px;
-      margin-bottom: 10px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
+      width: 100%; padding: 8px; margin-bottom: 10px;
+      border: 1px solid #ddd; border-radius: 4px;
     }
-    label {
-      display: block;
-      margin-bottom: 5px;
-      font-weight: bold;
-    }
+    label { font-weight: bold; margin-bottom: 5px; display: block; }
     .message {
-      padding: 10px;
-      margin: 10px 0;
-      border-radius: 4px;
+      padding: 10px; margin: 10px 0; border-radius: 4px;
     }
-    .error {
-      background-color: #f8d7da;
-      color: #721c24;
-    }
-    .success {
-      background-color: #d4edda;
-      color: #155724;
-    }
-    .hidden {
-      display: none;
-    }
+    .error { background-color: #f8d7da; color: #721c24; }
+    .success { background-color: #d4edda; color: #155724; }
+    .hidden { display: none; }
     .environment-warning {
-      background-color: #fff3cd;
-      border: 1px solid #ffeeba;
-      color: #856404;
-      padding: 10px;
-      margin-bottom: 20px;
-      border-radius: 4px;
+      background-color: #fff3cd; border: 1px solid #ffeeba;
+      color: #856404; padding: 10px; margin-bottom: 20px; border-radius: 4px;
     }
   </style>
 </head>
 <body>
-  <h1>WebAuthn Demo</h1>
+  <h1>WebAuthn Demo Optimizada</h1>
   
   <div id="environmentWarning" class="environment-warning">
     ATENCIÓN: Estás ejecutando esta app en un entorno local. WebAuthn requiere HTTPS o localhost.
@@ -113,68 +81,65 @@
   </div>
 
   <script>
-    // Detectar entorno (local o producción)
-    const isLocalhost = window.location.hostname === "localhost" || 
-                        window.location.hostname === "127.0.0.1" ||
-                        window.location.hostname === "";
-    
-    // URLs del servidor
+    const isLocalhost =
+      window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1" ||
+      window.location.hostname === "";
+
+    // Cambia la URL al endpoint de tu Cloudflare Worker
     const SERVER_URL = "https://servidor.mendozavegajeffersonjoe.workers.dev";
-    
-    // Referencias a elementos DOM
-    const usernameInput = document.getElementById('username');
-    const displaynameInput = document.getElementById('displayname');
-    const loginUsernameInput = document.getElementById('loginUsername');
-    const registerBtn = document.getElementById('registerBtn');
-    const loginBtn = document.getElementById('loginBtn');
-    const logoutBtn = document.getElementById('logoutBtn');
-    const registerMessage = document.getElementById('registerMessage');
-    const loginMessage = document.getElementById('loginMessage');
-    const userPanel = document.getElementById('userPanel');
-    const welcomeUser = document.getElementById('welcomeUser');
-    const testButton = document.getElementById('testWebAuthn');
-    const testMessage = document.getElementById('testMessage');
-    const environmentWarning = document.getElementById('environmentWarning');
-    
-    // Mostrar/ocultar advertencia según entorno
+
+    const usernameInput = document.getElementById("username");
+    const displaynameInput = document.getElementById("displayname");
+    const loginUsernameInput = document.getElementById("loginUsername");
+    const registerBtn = document.getElementById("registerBtn");
+    const loginBtn = document.getElementById("loginBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
+    const registerMessage = document.getElementById("registerMessage");
+    const loginMessage = document.getElementById("loginMessage");
+    const userPanel = document.getElementById("userPanel");
+    const welcomeUser = document.getElementById("welcomeUser");
+    const testButton = document.getElementById("testWebAuthn");
+    const testMessage = document.getElementById("testMessage");
+    const environmentWarning = document.getElementById("environmentWarning");
+
     if (!isLocalhost) {
-      environmentWarning.classList.add('hidden');
+      environmentWarning.classList.add("hidden");
     }
 
-    // Comprobar si el navegador soporta WebAuthn
     if (!window.PublicKeyCredential) {
-      showMessage(registerMessage, 'Tu navegador no soporta WebAuthn. Por favor, usa un navegador más reciente.', 'error');
+      showMessage(
+        registerMessage,
+        "Tu navegador no soporta WebAuthn. Por favor, usa uno más reciente.",
+        "error"
+      );
       registerBtn.disabled = true;
       loginBtn.disabled = true;
       testButton.disabled = true;
     }
 
-    // Funciones de utilidad
     function showMessage(element, message, type) {
       element.textContent = message;
       element.className = `message ${type}`;
-      element.classList.remove('hidden');
+      element.classList.remove("hidden");
     }
 
     function hideMessage(element) {
-      element.classList.add('hidden');
+      element.classList.add("hidden");
     }
 
-    // Conversiones entre ArrayBuffer y Base64
+    // Conversiones ArrayBuffer <-> Base64 URL-safe
     function arrayBufferToBase64(buffer) {
       const bytes = new Uint8Array(buffer);
-      let binary = '';
+      let binary = "";
       for (let i = 0; i < bytes.byteLength; i++) {
         binary += String.fromCharCode(bytes[i]);
       }
-      return btoa(binary)
-        .replace(/\+/g, '-')
-        .replace(/\//g, '_')
-        .replace(/=/g, '');
+      return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
     }
 
     function base64ToArrayBuffer(base64) {
-      const binary = atob(base64.replace(/-/g, '+').replace(/_/g, '/'));
+      const binary = atob(base64.replace(/-/g, "+").replace(/_/g, "/"));
       const bytes = new Uint8Array(binary.length);
       for (let i = 0; i < binary.length; i++) {
         bytes[i] = binary.charCodeAt(i);
@@ -182,94 +147,80 @@
       return bytes.buffer;
     }
 
-    // Test simple de WebAuthn (funciona en localhost)
+    // Test sencillo de compatibilidad WebAuthn
     async function testWebAuthnCompat() {
       try {
-        // Intentar crear una credencial simple con un RP ID que es válido para localhost
         const challengeBuffer = new Uint8Array(32);
         window.crypto.getRandomValues(challengeBuffer);
-        
+
         const userIdBuffer = new Uint8Array(16);
         window.crypto.getRandomValues(userIdBuffer);
-        
+
         const publicKeyOptions = {
           challenge: challengeBuffer.buffer,
           rp: {
-            // Importante: para localhost, usamos 'localhost' como rpId
             name: "WebAuthn Test",
-            id: isLocalhost ? "localhost" : window.location.hostname
+            id: isLocalhost ? "localhost" : window.location.hostname,
           },
           user: {
             id: userIdBuffer.buffer,
             name: "test-user@example.com",
-            displayName: "Test User"
+            displayName: "Test User",
           },
-          pubKeyCredParams: [
-            { type: "public-key", alg: -7 } // ES256
-          ],
+          pubKeyCredParams: [{ type: "public-key", alg: -7 }],
           timeout: 30000,
           attestation: "none",
           authenticatorSelection: {
             authenticatorAttachment: "platform",
-            userVerification: "discouraged"
-          }
+            userVerification: "discouraged",
+          },
         };
-        
-        // Solo probamos que podemos crear una credencial
+
         await navigator.credentials.create({ publicKey: publicKeyOptions });
-        
-        showMessage(testMessage, "¡WebAuthn funciona correctamente en este dispositivo! Puedes usar WebAuthn para autenticación.", 'success');
+        showMessage(testMessage, "¡WebAuthn funciona en este dispositivo!", "success");
       } catch (error) {
         console.error("Error en prueba de WebAuthn:", error);
-        showMessage(testMessage, `Error en WebAuthn: ${error.message}`, 'error');
+        showMessage(testMessage, `Error: ${error.message}`, "error");
       }
     }
 
-    // Registro WebAuthn
     async function registerWebAuthn() {
       const username = usernameInput.value.trim();
       const displayName = displaynameInput.value.trim();
-      
+
       if (!username || !displayName) {
-        showMessage(registerMessage, 'Por favor, completa todos los campos', 'error');
+        showMessage(registerMessage, "Completa todos los campos", "error");
         return;
       }
-      
+
       if (isLocalhost) {
-        showMessage(registerMessage, 'Las operaciones de registro completas requieren un origen seguro. Por favor, prueba la compatibilidad básica con el botón "Probar compatibilidad WebAuthn"', 'error');
+        showMessage(
+          registerMessage,
+          "El registro completo requiere HTTPS o un dominio confiable. Prueba la compatibilidad con el botón 'Probar compatibilidad WebAuthn'.",
+          "error"
+        );
         return;
       }
-      
+
       try {
-        // 1. Obtener challenge del Worker
         const resp = await fetch(`${SERVER_URL}/register`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username, displayName })
+          body: JSON.stringify({ username, displayName }),
         });
-        
         if (!resp.ok) {
-          const errorData = await resp.json();
-          throw new Error(errorData.error || 'Error al solicitar el registro');
+          const err = await resp.json();
+          throw new Error(err.error || "Error al solicitar el registro");
         }
-        
-        const data = await resp.json();
-        
-        // 2. Preparar datos para WebAuthn
-        const publicKeyOptions = data.publicKey;
-        publicKeyOptions.challenge = base64ToArrayBuffer(publicKeyOptions.challenge);
-        
-        // Si user.id es una string, convertirla a ArrayBuffer
-        if (typeof publicKeyOptions.user.id === 'string') {
-          publicKeyOptions.user.id = base64ToArrayBuffer(publicKeyOptions.user.id);
+        const { publicKey } = await resp.json();
+
+        // Convertir challenge y user.id a ArrayBuffer
+        publicKey.challenge = base64ToArrayBuffer(publicKey.challenge);
+        if (typeof publicKey.user.id === "string") {
+          publicKey.user.id = base64ToArrayBuffer(publicKey.user.id);
         }
-        
-        // 3. Crear credencial WebAuthn
-        const credential = await navigator.credentials.create({
-          publicKey: publicKeyOptions
-        });
-        
-        // 4. Enviar credencial al Worker
+
+        const credential = await navigator.credentials.create({ publicKey });
         const verifyResp = await fetch(`${SERVER_URL}/register/verify`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -279,43 +230,113 @@
               rawId: arrayBufferToBase64(credential.rawId),
               response: {
                 clientDataJSON: arrayBufferToBase64(credential.response.clientDataJSON),
-                attestationObject: arrayBufferToBase64(credential.response.attestationObject)
+                attestationObject: arrayBufferToBase64(
+                  credential.response.attestationObject
+                ),
               },
               type: credential.type,
-              username
-            }
-          })
+              username,
+            },
+          }),
         });
-        
         if (!verifyResp.ok) {
-          const errorData = await verifyResp.json();
-          throw new Error(errorData.error || 'Error al verificar el registro');
+          const err = await verifyResp.json();
+          throw new Error(err.error || "Error al verificar el registro");
         }
-        
-        showMessage(registerMessage, "Registro exitoso. Ahora puedes iniciar sesión.", 'success');
-        usernameInput.value = '';
-        displaynameInput.value = '';
-        
+        showMessage(registerMessage, "Registro exitoso. Ahora puedes iniciar sesión.", "success");
+        usernameInput.value = "";
+        displaynameInput.value = "";
       } catch (error) {
-        console.error(error);
-        showMessage(registerMessage, `Error: ${error.message}`, 'error');
+        console.error("Error en registro WebAuthn:", error);
+        showMessage(registerMessage, `Error: ${error.message}`, "error");
       }
     }
 
-    // Event Listeners
+    // Implementaci��n de login WebAuthn
+    async function loginWebAuthn() {
+      const username = loginUsernameInput.value.trim();
+      if (!username) {
+        showMessage(loginMessage, "Ingrese un nombre de usuario", "error");
+        return;
+      }
+
+      if (isLocalhost) {
+        showMessage(
+          loginMessage,
+          "El login completo requiere HTTPS o un dominio confiable. Prueba la compatibilidad con el botón 'Probar compatibilidad WebAuthn'.",
+          "error"
+        );
+        return;
+      }
+
+      try {
+        // 1. Obtener el challenge (publicKeyOptions) del servidor
+        const resp = await fetch(`${SERVER_URL}/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username }),
+        });
+        if (!resp.ok) {
+          const err = await resp.json();
+          throw new Error(err.error || "Error al solicitar login");
+        }
+        const data = await resp.json();
+        const publicKey = data.publicKey;
+
+        // Convertir challenge y credenciales
+        publicKey.challenge = base64ToArrayBuffer(publicKey.challenge);
+        publicKey.allowCredentials = publicKey.allowCredentials.map((cred) => {
+          return {
+            ...cred,
+            id: base64ToArrayBuffer(cred.id),
+          };
+        });
+
+        // 2. Obtener credenciales con navigator.credentials.get
+        const assertion = await navigator.credentials.get({ publicKey });
+
+        // 3. Verificar la credencial con el servidor
+        const verifyResp = await fetch(`${SERVER_URL}/login/verify`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            assertion: {
+              id: assertion.id,
+              type: assertion.type,
+              rawId: arrayBufferToBase64(assertion.rawId),
+              response: {
+                clientDataJSON: arrayBufferToBase64(assertion.response.clientDataJSON),
+                authenticatorData: arrayBufferToBase64(assertion.response.authenticatorData),
+                signature: arrayBufferToBase64(assertion.response.signature),
+                userHandle: arrayBufferToBase64(assertion.response.userHandle || new ArrayBuffer(0)),
+              },
+              username,
+            },
+          }),
+        });
+
+        if (!verifyResp.ok) {
+          const err = await verifyResp.json();
+          throw new Error(err.error || "Error al verificar el login");
+        }
+
+        const result = await verifyResp.json();
+        showMessage(loginMessage, result.message || "Login exitoso", "success");
+        welcomeUser.textContent = result.displayName || result.username || username;
+        userPanel.classList.remove("hidden");
+      } catch (error) {
+        console.error("Error en login WebAuthn:", error);
+        showMessage(loginMessage, `Error: ${error.message}`, "error");
+      }
+    }
+
     testButton.addEventListener("click", testWebAuthnCompat);
     registerBtn.addEventListener("click", registerWebAuthn);
-    loginBtn.addEventListener("click", () => {
-      if (isLocalhost) {
-        showMessage(loginMessage, 'Las operaciones de login completas requieren un origen seguro. Por favor, prueba la compatibilidad básica con el botón "Probar compatibilidad WebAuthn"', 'error');
-      } else {
-        // Implementar login real cuando no es localhost
-        alert('Función de login no implementada para esta demo.');
-      }
-    });
+    loginBtn.addEventListener("click", loginWebAuthn);
+
     logoutBtn.addEventListener("click", () => {
-      localStorage.removeItem('webauthn_user');
-      userPanel.classList.add('hidden');
+      userPanel.classList.add("hidden");
+      loginUsernameInput.value = "";
     });
   </script>
 </body>
